@@ -1,12 +1,15 @@
 ## 1.Linux环境启动命令
 
-### 1. 时间同步
+### 1. 常用
 
 ```shell
+# 时间同步
 ntpdate time.ntp.org
 
 ntpdate 0.asia.pool.ntp.org
 
+# 查看发行版本信息
+lsb_release -a
 ```
 
 
