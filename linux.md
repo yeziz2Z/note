@@ -20,7 +20,7 @@ lsb_release -a
 
 ```shell
 # 启动tracker
-service fdfs_trackerd start
+service fdfs_trackerd start2
 
 # 启动tracker
 service fdfs_storaged start
@@ -297,3 +297,66 @@ vim –remote file
 
 ```
 
+## 6. maven 配置mirros不生效
+
+问题描述
+有时候出现一种奇怪的问题，就是无论如何修改远程库，镜像库的地址，好像都不生效。
+下面给出排查方法与思路。
+
+解决步骤
+1) 首先检查eclipse或者IDEA中配置的settings文件是否是自己编辑的那个文件。
+2) 如果是，那么检查配置的镜像库mirror，看是否有mirrorOf配置的是* ,这个值表示匹配所有的镜像库，相当于会屏蔽掉配置的其他的镜像库。
+3) 注意配置的优先级，pom 配置 > settings中的配置
+4) 如果配置没有问题，那么检查settings文件是否有语法错误。特别是当出现不管怎么改远程库地址，拉取jar的时候都跑去中央仓库下载的现象时。有时候频繁修改或者复制粘贴，导致settings文件语法出现了错误。可以在命令行执行下面的命令，如果有语法错误，会得到提示。
+
+
+
+```shell
+mvn help:effective-settings
+```
+
+## 7.java程序Cpu占用过高排查
+
+### 1). top 命令查看占用CPU的进程id
+
+![image-20210420100331615](C:\Users\liuk\AppData\Roaming\Typora\typora-user-images\image-20210420100331615.png)
+
+### 2). 定位到异常进程id后 再通过ps命令查看这个程序的线程信息
+
+​		
+
+```shell
+
+# pid 进程id
+# tid 线程id
+# time 该线程已运行时间
+ps -mp pid -o THREAD,tid,time
+```
+
+![image-20210420101114118](C:\Users\liuk\AppData\Roaming\Typora\typora-user-images\image-20210420101114118.png)
+
+### 3). 将tid 转换为16进制，方便jstack进行定位
+
+```shell
+printf "%x\n" number
+```
+
+![image-20210420101459875](C:\Users\liuk\AppData\Roaming\Typora\typora-user-images\image-20210420101459875.png)
+
+### 4). 使用jstack工具查看进程信息
+
+```shell
+jstack pid | grep tid
+```
+
+![image-20210420101748097](C:\Users\liuk\AppData\Roaming\Typora\typora-user-images\image-20210420101748097.png)
+
+可以看到该线程处于运行状态，使用jstack查看详细信息
+
+```
+jstack pid
+```
+
+![image-20210420102115256](C:\Users\liuk\AppData\Roaming\Typora\typora-user-images\image-20210420102115256.png)
+
+定位到具体行
